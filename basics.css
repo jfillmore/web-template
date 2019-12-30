@@ -1,0 +1,802 @@
+/*
+
+# Grids
+
+Grids: specify the number of columns for the row directly (e.g. 2, 3, 7, 12, 24, etc)
+
+## Breakpoint Sizes:
+
+  {narrow}
+  - xs: 0 - 479
+  - sm: 480 - 719
+  {wide}
+  - md: 720 - 1399
+  - lg: 1400 - 1899
+  - xl: 1900 +
+  
+## CSS Class format:
+
+  - grid-$size-$num = $num is how many columns (e.g. 2, 5)
+  - col-$size-$num = $num is how many 12ths (e.g. 6 = 50% each; bootstrap style)
+
+
+# Flexbox Helpers
+
+Easy column and grid helpers that auto-stretch one item in a col/row if the
+others have fixed dimensions.
+
+## Rows
+
+1+ fixed width column and 1 dynamic column
+
+- .flex-row
+  - <random-fixed-height-col>
+  - .flex-content-wrapper
+    - .flex-content
+      - your dynamic-width column contents
+  - <random-fixed-height-col>
+
+## Columns
+
+1+ fixed width row and 1 dynamic row
+
+  - .flex-content-wrapper
+    - .flex-content
+      - your dynamic-width column contents
+  - <random-fixed-height-row>
+
+
+
+# Misc global styles
+
+- .scroll-y         enable verticle scroll (e.g. for some fixed-height layouts)
+- .hidden           start off hidden
+- .hidden-narrow    e.g. hidden at < 720
+- .hidden-wide      e.g. hidden >= 720
+ 
+
+
+*/
+/* -- Grid / Columns -- */
+@media (min-width: 0px) {
+	.col-xs-1, .col-xs-2, .col-xs-3, .col-xs-4, .col-xs-5, .col-xs-6, .col-xs-7, .col-xs-8, .col-xs-9, .col-xs-10, .col-xs-11, .col-xs-12 {
+		float: left;
+	}
+
+	.grid-xs-1, .grid-xs-2, .grid-xs-3, .grid-xs-4, .grid-xs-5, .grid-xs-6, .grid-xs-7, .grid-xs-8, .grid-xs-9, .grid-xs-10, .grid-xs-11, .grid-xs-12, .grid-xs-13, .grid-xs-14, .grid-xs-15, .grid-xs-16, .grid-xs-17, .grid-xs-18, .grid-xs-19, .grid-xs-20 {
+		float: left;
+	}
+
+	.grid-xs-1 {
+		width: 100.0%;
+	}
+
+	.col-xs-1 {
+		width: 8.333333%;
+	}
+
+	.grid-xs-2 {
+		width: 50.0%;
+	}
+
+	.col-xs-2 {
+		width: 16.666666%;
+	}
+
+	.grid-xs-3 {
+		width: 33.333333%;
+	}
+
+	.col-xs-3 {
+		width: 25.0%;
+	}
+
+	.grid-xs-4 {
+		width: 25.0%;
+	}
+
+	.col-xs-4 {
+		width: 33.333333%;
+	}
+
+	.grid-xs-5 {
+		width: 20.0%;
+	}
+
+	.col-xs-5 {
+		width: 41.666666%;
+	}
+
+	.grid-xs-6 {
+		width: 16.666666%;
+	}
+
+	.col-xs-6 {
+		width: 50.0%;
+	}
+
+	.grid-xs-7 {
+		width: 14.285714%;
+	}
+
+	.col-xs-7 {
+		width: 58.333333%;
+	}
+
+	.grid-xs-8 {
+		width: 12.5%;
+	}
+
+	.col-xs-8 {
+		width: 66.666666%;
+	}
+
+	.grid-xs-9 {
+		width: 11.111111%;
+	}
+
+	.col-xs-9 {
+		width: 75.0%;
+	}
+
+	.grid-xs-10 {
+		width: 10.0%;
+	}
+
+	.col-xs-10 {
+		width: 83.333333%;
+	}
+
+	.grid-xs-11 {
+		width: 9.090909%;
+	}
+
+	.col-xs-11 {
+		width: 91.666666%;
+	}
+
+	.grid-xs-12 {
+		width: 8.333333%;
+	}
+
+	.col-xs-12 {
+		width: 100.0%;
+	}
+
+	.grid-xs-13 {
+		width: 7.692307%;
+	}
+
+	.grid-xs-14 {
+		width: 7.142857%;
+	}
+
+	.grid-xs-15 {
+		width: 6.666666%;
+	}
+
+	.grid-xs-16 {
+		width: 6.25%;
+	}
+
+	.grid-xs-17 {
+		width: 5.882352%;
+	}
+
+	.grid-xs-18 {
+		width: 5.555555%;
+	}
+
+	.grid-xs-19 {
+		width: 5.263157%;
+	}
+
+	.grid-xs-20 {
+		width: 5.0%;
+	}
+}
+
+@media (min-width: 480px) {
+	.col-sm-1, .col-sm-2, .col-sm-3, .col-sm-4, .col-sm-5, .col-sm-6, .col-sm-7, .col-sm-8, .col-sm-9, .col-sm-10, .col-sm-11, .col-sm-12 {
+		float: left;
+	}
+
+	.grid-sm-1, .grid-sm-2, .grid-sm-3, .grid-sm-4, .grid-sm-5, .grid-sm-6, .grid-sm-7, .grid-sm-8, .grid-sm-9, .grid-sm-10, .grid-sm-11, .grid-sm-12, .grid-sm-13, .grid-sm-14, .grid-sm-15, .grid-sm-16, .grid-sm-17, .grid-sm-18, .grid-sm-19, .grid-sm-20 {
+		float: left;
+	}
+
+	.grid-sm-1 {
+		width: 100.0%;
+	}
+
+	.col-sm-1 {
+		width: 8.333333%;
+	}
+
+	.grid-sm-2 {
+		width: 50.0%;
+	}
+
+	.col-sm-2 {
+		width: 16.666666%;
+	}
+
+	.grid-sm-3 {
+		width: 33.333333%;
+	}
+
+	.col-sm-3 {
+		width: 25.0%;
+	}
+
+	.grid-sm-4 {
+		width: 25.0%;
+	}
+
+	.col-sm-4 {
+		width: 33.333333%;
+	}
+
+	.grid-sm-5 {
+		width: 20.0%;
+	}
+
+	.col-sm-5 {
+		width: 41.666666%;
+	}
+
+	.grid-sm-6 {
+		width: 16.666666%;
+	}
+
+	.col-sm-6 {
+		width: 50.0%;
+	}
+
+	.grid-sm-7 {
+		width: 14.285714%;
+	}
+
+	.col-sm-7 {
+		width: 58.333333%;
+	}
+
+	.grid-sm-8 {
+		width: 12.5%;
+	}
+
+	.col-sm-8 {
+		width: 66.666666%;
+	}
+
+	.grid-sm-9 {
+		width: 11.111111%;
+	}
+
+	.col-sm-9 {
+		width: 75.0%;
+	}
+
+	.grid-sm-10 {
+		width: 10.0%;
+	}
+
+	.col-sm-10 {
+		width: 83.333333%;
+	}
+
+	.grid-sm-11 {
+		width: 9.090909%;
+	}
+
+	.col-sm-11 {
+		width: 91.666666%;
+	}
+
+	.grid-sm-12 {
+		width: 8.333333%;
+	}
+
+	.col-sm-12 {
+		width: 100.0%;
+	}
+
+	.grid-sm-13 {
+		width: 7.692307%;
+	}
+
+	.grid-sm-14 {
+		width: 7.142857%;
+	}
+
+	.grid-sm-15 {
+		width: 6.666666%;
+	}
+
+	.grid-sm-16 {
+		width: 6.25%;
+	}
+
+	.grid-sm-17 {
+		width: 5.882352%;
+	}
+
+	.grid-sm-18 {
+		width: 5.555555%;
+	}
+
+	.grid-sm-19 {
+		width: 5.263157%;
+	}
+
+	.grid-sm-20 {
+		width: 5.0%;
+	}
+}
+
+@media (min-width: 720px) {
+	.col-md-1, .col-md-2, .col-md-3, .col-md-4, .col-md-5, .col-md-6, .col-md-7, .col-md-8, .col-md-9, .col-md-10, .col-md-11, .col-md-12 {
+		float: left;
+	}
+
+	.grid-md-1, .grid-md-2, .grid-md-3, .grid-md-4, .grid-md-5, .grid-md-6, .grid-md-7, .grid-md-8, .grid-md-9, .grid-md-10, .grid-md-11, .grid-md-12, .grid-md-13, .grid-md-14, .grid-md-15, .grid-md-16, .grid-md-17, .grid-md-18, .grid-md-19, .grid-md-20 {
+		float: left;
+	}
+
+	.grid-md-1 {
+		width: 100.0%;
+	}
+
+	.col-md-1 {
+		width: 8.333333%;
+	}
+
+	.grid-md-2 {
+		width: 50.0%;
+	}
+
+	.col-md-2 {
+		width: 16.666666%;
+	}
+
+	.grid-md-3 {
+		width: 33.333333%;
+	}
+
+	.col-md-3 {
+		width: 25.0%;
+	}
+
+	.grid-md-4 {
+		width: 25.0%;
+	}
+
+	.col-md-4 {
+		width: 33.333333%;
+	}
+
+	.grid-md-5 {
+		width: 20.0%;
+	}
+
+	.col-md-5 {
+		width: 41.666666%;
+	}
+
+	.grid-md-6 {
+		width: 16.666666%;
+	}
+
+	.col-md-6 {
+		width: 50.0%;
+	}
+
+	.grid-md-7 {
+		width: 14.285714%;
+	}
+
+	.col-md-7 {
+		width: 58.333333%;
+	}
+
+	.grid-md-8 {
+		width: 12.5%;
+	}
+
+	.col-md-8 {
+		width: 66.666666%;
+	}
+
+	.grid-md-9 {
+		width: 11.111111%;
+	}
+
+	.col-md-9 {
+		width: 75.0%;
+	}
+
+	.grid-md-10 {
+		width: 10.0%;
+	}
+
+	.col-md-10 {
+		width: 83.333333%;
+	}
+
+	.grid-md-11 {
+		width: 9.090909%;
+	}
+
+	.col-md-11 {
+		width: 91.666666%;
+	}
+
+	.grid-md-12 {
+		width: 8.333333%;
+	}
+
+	.col-md-12 {
+		width: 100.0%;
+	}
+
+	.grid-md-13 {
+		width: 7.692307%;
+	}
+
+	.grid-md-14 {
+		width: 7.142857%;
+	}
+
+	.grid-md-15 {
+		width: 6.666666%;
+	}
+
+	.grid-md-16 {
+		width: 6.25%;
+	}
+
+	.grid-md-17 {
+		width: 5.882352%;
+	}
+
+	.grid-md-18 {
+		width: 5.555555%;
+	}
+
+	.grid-md-19 {
+		width: 5.263157%;
+	}
+
+	.grid-md-20 {
+		width: 5.0%;
+	}
+}
+
+@media (min-width: 1400px) {
+	.col-lg-1, .col-lg-2, .col-lg-3, .col-lg-4, .col-lg-5, .col-lg-6, .col-lg-7, .col-lg-8, .col-lg-9, .col-lg-10, .col-lg-11, .col-lg-12 {
+		float: left;
+	}
+
+	.grid-lg-1, .grid-lg-2, .grid-lg-3, .grid-lg-4, .grid-lg-5, .grid-lg-6, .grid-lg-7, .grid-lg-8, .grid-lg-9, .grid-lg-10, .grid-lg-11, .grid-lg-12, .grid-lg-13, .grid-lg-14, .grid-lg-15, .grid-lg-16, .grid-lg-17, .grid-lg-18, .grid-lg-19, .grid-lg-20 {
+		float: left;
+	}
+
+	.grid-lg-1 {
+		width: 100.0%;
+	}
+
+	.col-lg-1 {
+		width: 8.333333%;
+	}
+
+	.grid-lg-2 {
+		width: 50.0%;
+	}
+
+	.col-lg-2 {
+		width: 16.666666%;
+	}
+
+	.grid-lg-3 {
+		width: 33.333333%;
+	}
+
+	.col-lg-3 {
+		width: 25.0%;
+	}
+
+	.grid-lg-4 {
+		width: 25.0%;
+	}
+
+	.col-lg-4 {
+		width: 33.333333%;
+	}
+
+	.grid-lg-5 {
+		width: 20.0%;
+	}
+
+	.col-lg-5 {
+		width: 41.666666%;
+	}
+
+	.grid-lg-6 {
+		width: 16.666666%;
+	}
+
+	.col-lg-6 {
+		width: 50.0%;
+	}
+
+	.grid-lg-7 {
+		width: 14.285714%;
+	}
+
+	.col-lg-7 {
+		width: 58.333333%;
+	}
+
+	.grid-lg-8 {
+		width: 12.5%;
+	}
+
+	.col-lg-8 {
+		width: 66.666666%;
+	}
+
+	.grid-lg-9 {
+		width: 11.111111%;
+	}
+
+	.col-lg-9 {
+		width: 75.0%;
+	}
+
+	.grid-lg-10 {
+		width: 10.0%;
+	}
+
+	.col-lg-10 {
+		width: 83.333333%;
+	}
+
+	.grid-lg-11 {
+		width: 9.090909%;
+	}
+
+	.col-lg-11 {
+		width: 91.666666%;
+	}
+
+	.grid-lg-12 {
+		width: 8.333333%;
+	}
+
+	.col-lg-12 {
+		width: 100.0%;
+	}
+
+	.grid-lg-13 {
+		width: 7.692307%;
+	}
+
+	.grid-lg-14 {
+		width: 7.142857%;
+	}
+
+	.grid-lg-15 {
+		width: 6.666666%;
+	}
+
+	.grid-lg-16 {
+		width: 6.25%;
+	}
+
+	.grid-lg-17 {
+		width: 5.882352%;
+	}
+
+	.grid-lg-18 {
+		width: 5.555555%;
+	}
+
+	.grid-lg-19 {
+		width: 5.263157%;
+	}
+
+	.grid-lg-20 {
+		width: 5.0%;
+	}
+}
+
+@media (min-width: 1900px) {
+	.col-xl-1, .col-xl-2, .col-xl-3, .col-xl-4, .col-xl-5, .col-xl-6, .col-xl-7, .col-xl-8, .col-xl-9, .col-xl-10, .col-xl-11, .col-xl-12 {
+		float: left;
+	}
+
+	.grid-xl-1, .grid-xl-2, .grid-xl-3, .grid-xl-4, .grid-xl-5, .grid-xl-6, .grid-xl-7, .grid-xl-8, .grid-xl-9, .grid-xl-10, .grid-xl-11, .grid-xl-12, .grid-xl-13, .grid-xl-14, .grid-xl-15, .grid-xl-16, .grid-xl-17, .grid-xl-18, .grid-xl-19, .grid-xl-20 {
+		float: left;
+	}
+
+	.grid-xl-1 {
+		width: 100.0%;
+	}
+
+	.col-xl-1 {
+		width: 8.333333%;
+	}
+
+	.grid-xl-2 {
+		width: 50.0%;
+	}
+
+	.col-xl-2 {
+		width: 16.666666%;
+	}
+
+	.grid-xl-3 {
+		width: 33.333333%;
+	}
+
+	.col-xl-3 {
+		width: 25.0%;
+	}
+
+	.grid-xl-4 {
+		width: 25.0%;
+	}
+
+	.col-xl-4 {
+		width: 33.333333%;
+	}
+
+	.grid-xl-5 {
+		width: 20.0%;
+	}
+
+	.col-xl-5 {
+		width: 41.666666%;
+	}
+
+	.grid-xl-6 {
+		width: 16.666666%;
+	}
+
+	.col-xl-6 {
+		width: 50.0%;
+	}
+
+	.grid-xl-7 {
+		width: 14.285714%;
+	}
+
+	.col-xl-7 {
+		width: 58.333333%;
+	}
+
+	.grid-xl-8 {
+		width: 12.5%;
+	}
+
+	.col-xl-8 {
+		width: 66.666666%;
+	}
+
+	.grid-xl-9 {
+		width: 11.111111%;
+	}
+
+	.col-xl-9 {
+		width: 75.0%;
+	}
+
+	.grid-xl-10 {
+		width: 10.0%;
+	}
+
+	.col-xl-10 {
+		width: 83.333333%;
+	}
+
+	.grid-xl-11 {
+		width: 9.090909%;
+	}
+
+	.col-xl-11 {
+		width: 91.666666%;
+	}
+
+	.grid-xl-12 {
+		width: 8.333333%;
+	}
+
+	.col-xl-12 {
+		width: 100.0%;
+	}
+
+	.grid-xl-13 {
+		width: 7.692307%;
+	}
+
+	.grid-xl-14 {
+		width: 7.142857%;
+	}
+
+	.grid-xl-15 {
+		width: 6.666666%;
+	}
+
+	.grid-xl-16 {
+		width: 6.25%;
+	}
+
+	.grid-xl-17 {
+		width: 5.882352%;
+	}
+
+	.grid-xl-18 {
+		width: 5.555555%;
+	}
+
+	.grid-xl-19 {
+		width: 5.263157%;
+	}
+
+	.grid-xl-20 {
+		width: 5.0%;
+	}
+}
+
+/* -- Layout styles -- */
+/* Flexbox column layout w/ fixed header, growing content */
+.flex-col {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+.flex-row {
+	width: 100%;
+	display: flex;
+	flex-direction: row;
+}
+
+.flex-fixed {
+	flex-grow: 0;
+}
+
+.flex-content-wrapper {
+	overflow: hidden;
+	flex-grow: 1;
+	position: relative;
+}
+
+.flex-content {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
+/* -- Misc global styles -- */
+.scroll-y {
+	overflow-y: scroll;
+}
+
+.hidden {
+	display: none;
+}
+
+@media (max-width: 719px) {
+	.hidden-narrow {
+		display: none;
+	}
+}
+
+@media (min-width: 720px) {
+	.hidden-wide {
+		display: none;
+	}
+}
