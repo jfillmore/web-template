@@ -40,6 +40,8 @@ others have fixed dimensions.
 
 1+ fixed width row and 1 dynamic row
 
+- .flex-col
+  - <random-fixed-height-row>
   - .flex-content-wrapper
     - .flex-content
       - your dynamic-width column contents
