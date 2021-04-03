@@ -1,6 +1,6 @@
 "use strict";
 
-window.Mortar = (function() {
+window.Mortar = (function () {
     var API, // API generator given a base URL to make get/post/etc easy
         Els, // jQuery-like helpers for (bulk) element manipulation
         Form, // Common form logic for validation, safe submission, field management, etc
@@ -8,12 +8,12 @@ window.Mortar = (function() {
         PromiseLite, // Lightweight promise for easily coordinating async operations
         UI, // Easy UI/API management w/ node caching
         XHR; // Generic XHR request helper
-    
+
     /*
     Misc helpers
     */
     Mortar = {
-        debug: function(msg, data) {
+        debug: function (msg, data) {
             if (console && console.log) {
                 console.log(msg);
                 if (data !== undefined) {
@@ -22,7 +22,7 @@ window.Mortar = (function() {
             }
         },
 
-        $: function(query, el) {
+        $: function (query, el) {
             // poor man's caching
             if (typeof(query) !== 'string') {
                 return query;
@@ -33,7 +33,7 @@ window.Mortar = (function() {
             return el.querySelectorAll(query);
         },
 
-        $1: function(query, el) {
+        $1: function (query, el) {
             // poor man's caching
             if (typeof(query) !== 'string') {
                 return query;
@@ -44,13 +44,13 @@ window.Mortar = (function() {
             return el.querySelector(query);
         },
 
-        epoch: function(inMs) {
+        epoch: function (inMs) {
             var epochMs = (new Date()).getTime();
             return inMs ? epochMs : parseInt(epochMs / 1000, 10);
         },
 
         // arbitrary precision rounding that JS so sorely lacks
-        round: function(num, args) {
+        round: function (num, args) {
             var mod, intHalf, multiplier, i, toAdd;
             args = Mortar.getArgs({
                 interval: undefined, // round to nearest 4th (e.g 5.9 -> 4, 6.1 -> 8) (default: 1)
@@ -131,7 +131,7 @@ window.Mortar = (function() {
             return num;
         },
 
-        escape: function(string) {
+        escape: function (string) {
             var toEscape = {
                 '&': '&amp;',
                 '<': '&lt;',
@@ -147,7 +147,7 @@ window.Mortar = (function() {
             return string;
         },
 
-        isEmpty: function(obj) {
+        isEmpty: function (obj) {
             var key;
             if (obj === null) {
                 return true;
@@ -166,7 +166,7 @@ window.Mortar = (function() {
             return true;
         },
 
-        map: function(vals, func) {
+        map: function (vals, func) {
             var result = [],
                 index = 0,
                 newVal,
@@ -181,7 +181,7 @@ window.Mortar = (function() {
             return result;
         },
 
-        every: function(vals, func, args) {
+        every: function (vals, func, args) {
             var good, key, index;
             args = Mortar.getArgs({
                 abortEarly: true
@@ -199,19 +199,19 @@ window.Mortar = (function() {
             return good;
         },
 
-        each: function(vals, func, args) {
+        each: function (vals, func, args) {
             args = Mortar.getArgs({
                 abortEarly: false
             }, args);
             return Mortar.every(vals, func, args);
         },
 
-        has: function(obj, key) {
+        has: function (obj, key) {
             return obj.hasOwnProperty(key);
         },
 
         // walk an object based on the path given, using dotted notation by default
-        walkObj: function(obj, path, args) {
+        walkObj: function (obj, path, args) {
             var ptr = obj;
             args = Mortar.getArgs({
                 pathSeparator: '.'
@@ -219,13 +219,13 @@ window.Mortar = (function() {
             if (typeof(path) === 'string') {
                 path = path.split(args.pathSeparator);
             }
-            Mortar.every(path, function(part) {
+            Mortar.every(path, function (part) {
                 var match, matched;
                 // keys are either an object key or a 'query' where a JSON  object is passed to search for the first match (e.g. 'foo.{"bar":3}.name')
                 if (part.substr(0, 1) === '{' && part.substr(part.length - 1) === '}') {
                     match = JSON.parse(part);
-                    Mortar.every(ptr, function(nextPtr) {
-                        if (!matched && Mortar.every(match, function(val, key) {
+                    Mortar.every(ptr, function (nextPtr) {
+                        if (!matched && Mortar.every(match, function (val, key) {
                             return val === nextPtr[key];
                         })) {
                             matched = nextPtr;
@@ -251,7 +251,7 @@ window.Mortar = (function() {
         },
 
         // merge two (or more) objects together without modifying any parameters
-        mergeObjs: function() {
+        mergeObjs: function () {
             var merged = {}, i, name, addonObj;
             for (i = 0; i < arguments.length && arguments[i]; i++) {
                 addonObj = arguments[i];
@@ -265,7 +265,7 @@ window.Mortar = (function() {
         },
 
         // get arguments based on a set of defaults, optionally allowing extra args in
-        getArgs: function(baseArgs, args, merge) {
+        getArgs: function (baseArgs, args, merge) {
             var arg,
                 finalArgs = Mortar.mergeObjs({}, baseArgs);
             for (arg in args) {
@@ -279,7 +279,7 @@ window.Mortar = (function() {
         },
 
         // return padded number; prepended with 0's by default
-        padNum: function(num, chars, pad, append) {
+        padNum: function (num, chars, pad, append) {
             num = String(num);
             pad = pad || '0';
             while (num.length < chars) {
@@ -293,7 +293,7 @@ window.Mortar = (function() {
         },
 
         // date formatting
-        date: function(date, args) {
+        date: function (date, args) {
             var now, diff, amt, dateParts,
                 dateObj = typeof(date) !== 'object' ? new Date(date) : date,
                 days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -363,7 +363,7 @@ window.Mortar = (function() {
         // calls each argument if it is a function, passing the remaining
         // arguments as parameters; stops once a non-function value is reached
         // and returns the result
-        get: function(obj, obj1) {
+        get: function (obj, obj1) {
             var type, params, i, objs;
             // call function if given, and use supplied args.
             // if args are a function, call them for the args.
@@ -395,7 +395,7 @@ window.Mortar = (function() {
         },
 
         // generate a custom event, IE9+ friendly
-        customEvent: function(el, name, data, args) {
+        customEvent: function (el, name, data, args) {
             var ev;
             args = Mortar.getArgs({
                 bubbles: undefined,
@@ -421,7 +421,7 @@ window.Mortar = (function() {
         },
 
         // generate an HTML event, IE9+
-        htmlEvent: function(el, name) {
+        htmlEvent: function (el, name) {
             var ev = document.createEvent('HTMLEvents');
             ev.initEvent(name, true, false);
             el.dispatchEvent(ev);
@@ -429,13 +429,13 @@ window.Mortar = (function() {
         },
 
         // cause DOM events on one element to happen on another (e.g. labels to cause radio buttons to be clicked)
-        reflect: function(events, srcEl, tgtEl, custom) {
+        reflect: function (events, srcEl, tgtEl, custom) {
             if (typeof(events) === 'string') {
                 events = events.split(' ');
             }
-            events.forEach(function(evName) {
+            events.forEach(function (evName) {
                 evName = evName.trim();
-                srcEl.addEventListener(evName, function(ev) {
+                srcEl.addEventListener(evName, function (ev) {
                     ev.preventDefault();
                     ev.stopPropagation();
                     if (custom) {
@@ -451,7 +451,7 @@ window.Mortar = (function() {
         },
 
         // cause an element to be shown below another element, positioning to the left but still within the viewport
-        positionAt: function(el, tgtEl, args) {
+        positionAt: function (el, tgtEl, args) {
             var elStyle, elWidth,
                 sbWidth = 20, // scroll bar width... estimated
                 $el = Els(el),
@@ -501,11 +501,11 @@ window.Mortar = (function() {
     /*
     DOM element wrapper to provide simple jQuery-like functionality (e.g. traversal)
     */
-    Els = function() {
+    Els = function () {
         var els = [];
 
         // condense all args into a single array of elements
-        Array.prototype.slice.call(arguments).forEach(function(arg) {
+        Array.prototype.slice.call(arguments).forEach(function (arg) {
             var i = -1, key;
             // nodelist or element/array of elements?
             if (arg.length !== undefined && arg.tagName === undefined && typeof(arg) !== 'string') {
@@ -530,7 +530,7 @@ window.Mortar = (function() {
         });
 
         // returns whether the element matches the selector/selectors (or just some)
-        els.is = function(sels, any, args) {
+        els.is = function (sels, any, args) {
             var func = any ? 'some' : 'every',
                 selFunc ;
             args = Mortar.getArgs({
@@ -540,8 +540,8 @@ window.Mortar = (function() {
             if (typeof(sels) !== 'object') {
                 sels = [sels];
             }
-            return els[func](function(el) {
-                return sels[selFunc](function(sel) {
+            return els[func](function (el) {
+                return sels[selFunc](function (sel) {
                     return (
                         el.matches ||
                         el.matchesSelector ||
@@ -555,7 +555,7 @@ window.Mortar = (function() {
         };
 
         // generic callback method for chaining, as forEach/filter/etc are terminal
-        els.each = function(func) {
+        els.each = function (func) {
             if (typeof(func) === 'function') {
                 els.forEach(func);
             }
@@ -563,24 +563,24 @@ window.Mortar = (function() {
         };
 
         // generic callback method for chaining, but invoked onced for the entire set of elements
-        els.all = function(func) {
+        els.all = function (func) {
             if (typeof(func) === 'function') {
                 func(els);
             }
             return els;
         };
 
-        els.on = function(eventNames, func, args) {
+        els.on = function (eventNames, func, args) {
             return els.toggleEvent(eventNames, func, args);
         };
 
-        els.off = function(eventNames, func, args) {
+        els.off = function (eventNames, func, args) {
             return els.toggleEvent(eventNames, func, args, true);
         };
 
-        els.toggleEvent = function(eventNames, func, args, remove) {
-            eventNames.split(' ').forEach(function(eventName) {
-                els.forEach(function(el) {
+        els.toggleEvent = function (eventNames, func, args, remove) {
+            eventNames.split(' ').forEach(function (eventName) {
+                els.forEach(function (el) {
                     if (remove) {
                         el.removeEventListener(eventName, func, args);
                     } else {
@@ -592,26 +592,26 @@ window.Mortar = (function() {
 
         // TODO: why bind + on? hmmm...
         // generic addEventListener wrapper
-        els.bind = function(events, args) {
+        els.bind = function (events, args) {
             // at some point we may want more detailed args, but until then...
             if (typeof(args) === 'function') {
                 args = {onTrigger: args};
             }
             args = Mortar.getArgs({
-                onTrigger: function() {}
+                onTrigger: function () {}
             }, args);
             if (typeof(events) === 'string') {
                 events = events.trim().split(' ');
             }
-            els.forEach(function(el) {
-                events.forEach(function(evName) {
+            els.forEach(function (el) {
+                events.forEach(function (evName) {
                     el.addEventListener(evName.trim(), args.onTrigger);
                 });
             });
             return els;
         };
 
-        els.trigger = function(events, data, args) {
+        els.trigger = function (events, data, args) {
             args = Mortar.getArgs({
                 custom: undefined,
             }, args);
@@ -628,8 +628,8 @@ window.Mortar = (function() {
             if (typeof(events) === 'string') {
                 events = events.trim().split(' ');
             }
-            els.forEach(function(el) {
-                events.forEach(function(evName) {
+            els.forEach(function (el) {
+                events.forEach(function (evName) {
                     if (args.custom) {
                         Mortar.customEvent(el, evName, data);
                     } else {
@@ -641,14 +641,14 @@ window.Mortar = (function() {
         };
 
         // check whether all (or just some) elements and/or their parents are displayed (e.g. for event delivery)
-        els.isDisplayed = function(args) {
+        els.isDisplayed = function (args) {
             var func;
             args = Mortar.getArgs({
                 ignoreSelf: undefined,
                 any: undefined
             }, args);
             func = args.any ? 'some' : 'every';
-            return els.length && els[func](function(el) {
+            return els.length && els[func](function (el) {
                 var ptr, style;
                 if (!el.parentElement && !args.ignoreSelf) {
                     return false;
@@ -668,14 +668,14 @@ window.Mortar = (function() {
         };
 
         // returns whether all (or just some) elements are nested within another element
-        els.isWithin = function(args) {
+        els.isWithin = function (args) {
             var func;
             args = Mortar.getArgs({
                 parentEl: undefined,
                 any: undefined
             }, args);
             func = args.any ? 'some' : 'every';
-            return els.length && els[func](function(el) {
+            return els.length && els[func](function (el) {
                 var ptr, result = false;
                 ptr = el;
                 while (ptr.parentElement) {
@@ -690,11 +690,11 @@ window.Mortar = (function() {
         };
 
         // bulk style modification
-        els.style = function(styles) {
+        els.style = function (styles) {
             if (styles === undefined) {
                 return;
             }
-            els.forEach(function(el) {
+            els.forEach(function (el) {
                 var style;
                 for (style in styles) {
                     if (styles.hasOwnProperty) {
@@ -706,11 +706,11 @@ window.Mortar = (function() {
         };
 
         // bulk property modification
-        els.props = function(props) {
+        els.props = function (props) {
             if (props === undefined) {
                 return;
             }
-            els.forEach(function(el) {
+            els.forEach(function (el) {
                 var prop;
                 for (prop in props) {
                     if (props.hasOwnProperty) {
@@ -722,33 +722,22 @@ window.Mortar = (function() {
         };
 
         // ensure a class is added or removed; if add=undefined it'll be toggled dynamically
-        els.toggleClass = function(cls, add) {
-            els.forEach(function(el) {
-                var list = el.className.split(' '),
-                    clsIndex = list.indexOf(cls),
-                    hasCls = clsIndex >= 0;
-                if (add === undefined) {
-                    add = !hasCls;
-                }
-                if (add && !hasCls) {
-                    list.push(cls);
-                } else if (!add && hasCls) {
-                    list.splice(clsIndex, 1);
-                }
-                el.className = list.join(' ');
+        els.toggleClass = function (cls, add) {
+            els.forEach(function (el) {
+                el.classList.toggle(cls)
             });
             return els;
         };
 
         // return all parent elements based on selector
         // depth = # of ancestors behond the parent to search (e.g. 0 = no grandparents; undefined = no limit)
-        els.parents = function(selector, args) {
+        els.parents = function (selector, args) {
             var all = [];
             args = Mortar.getArgs({
                 count: undefined,
                 depth: undefined
             }, args);
-            els.forEach(function(el) {
+            els.forEach(function (el) {
                 var ptr = el,
                     curDepth = -1; // we look at the first parent no matter what
                 while (ptr.parentElement &&
@@ -767,15 +756,33 @@ window.Mortar = (function() {
             return Els(all);
         };
 
-        // return the siblings, optionally based on selector
-        els.siblings = function(selector) {
-            var all = [];
-            els.forEach(function(el) {
+        // return the siblings, optionally based on selector or only before/after
+        els.siblings = function (selector, args) {
+            var all = [],
+                seenSelf = false,
+                matches = 0;
+            args = Mortar.getArgs({
+                prev: true,
+                next: true,
+                count: undefined
+            }, args);
+            els.forEach(function (el) {
                 all = all.concat(
-                    Array.prototype.filter.call(el.parentNode.children, function(sibling) {
-                        return sibling !== el && 
-                            (!selector || Els(sibling).is(selector)) &&
-                            all.indexOf(sibling) === -1;
+                    Array.prototype.filter.call(el.parentNode.children, function (sibling) {
+                        var isSelf = sibling === el,
+                            matched = false;
+                        if (!seenSelf && isSelf) {
+                            seenSelf = true;
+                        }
+                        if (!args.prev && !seenSelf) return false;
+                        if (!args.next && seenSelf) return false;
+                        matched = !isSelf
+                            && (!selector || Els(sibling).is(selector))
+                            && all.indexOf(sibling) === -1;
+                        if (matched) {
+                            matches += 1;
+                        }
+                        return matched && (!args.count || matches <= args.count)
                     })
                 );
             });
@@ -783,13 +790,13 @@ window.Mortar = (function() {
         };
 
         /*
-        return all the children, optionally limited to a selector or limited count/depth 
+        return all the children, optionally limited to a selector or limited count/depth
         - depth = "true" for unlimited
          -- 1 = immediate children (effectively same as false/undefined/0)
-         -- 2, 3, etc. = number of levels to decend; 
+         -- 2, 3, etc. = number of levels to decend;
          -- -1 = unlimited
         */
-        els.children = function(selector, args) {
+        els.children = function (selector, args) {
             var all = [];
             args = Mortar.getArgs({
                 count: undefined,
@@ -798,12 +805,12 @@ window.Mortar = (function() {
             if (!els.length) {
                 return;
             }
-            els.forEach(function(el) {
+            els.forEach(function (el) {
                 // abort early if we already found all our matches
                 if (args.count && all.length >= args.count) { return; }
                 // add any unique matchs from our immediate children
-                all = all.concat(Array.prototype.filter.call(el.children, function(child) {
-                    return child && 
+                all = all.concat(Array.prototype.filter.call(el.children, function (child) {
+                    return child &&
                         (!selector || Els(child).is(selector)) &&
                         all.indexOf(child) === -1 &&
                         (!args.count || all.length < args.count);
@@ -833,7 +840,7 @@ window.Mortar = (function() {
         - downDepth = how far down to scan after each traversal upwards; default=unlimited
         - stopAt = when traversing up don't go beyond the selector given
         */
-        els.nearest = function(selector, args) {
+        els.nearest = function (selector, args) {
             var all = [];
             args = Mortar.getArgs({
                 count: 1,
@@ -841,7 +848,7 @@ window.Mortar = (function() {
                 downDepth: -1,
                 stopAt: undefined
             }, args);
-            els.forEach(function(el) {
+            els.forEach(function (el) {
                 var matches = [],
                     curDepth = -1, // always look at the first parent's children
                     ptrEl = el,
@@ -870,7 +877,7 @@ window.Mortar = (function() {
                     if (args.stopAt && Els(lastEl).is(args.stopAt)) { break; }
                 }
                 // add in any unique matches, as each src el may match the same parent
-                matches.forEach(function(match) {
+                matches.forEach(function (match) {
                     if (all.indexOf(match) === -1) {
                         all.push(match);
                     }
@@ -880,15 +887,15 @@ window.Mortar = (function() {
         };
 
         /* cause elements to appear near another element */
-        els.positionAt = function(tgtEl, args) {
-            els.forEach(function(el) {
+        els.positionAt = function (tgtEl, args) {
+            els.forEach(function (el) {
                 Mortar.positionAt(el, tgtEl, args);
             });
             return els;
         };
 
         /* set HTML for elements */
-        els.html = function(html, args) {
+        els.html = function (html, args) {
             args = Mortar.getArgs({
                 prepend: false,
                 append: false
@@ -896,7 +903,7 @@ window.Mortar = (function() {
             if (args.prepend && args.append) {
                 throw new Error("Prepending and appending HTML at the same time is not supported.");
             }
-            els.forEach(function(el) {
+            els.forEach(function (el) {
                 if (args.prepend) {
                     el.innerHTML = html + el.innerHTML;
                 } else if (args.append) {
@@ -909,8 +916,8 @@ window.Mortar = (function() {
         };
 
         /* remove elements from the DOM */
-        els.remove = function() {
-            els.forEach(function(el) {
+        els.remove = function () {
+            els.forEach(function (el) {
                 el.parentElement.removeChild(el);
             });
         };
@@ -919,13 +926,13 @@ window.Mortar = (function() {
         read an attribute from the current node or one of its parents
         may optionally also (or instead) look downwards for the attribute (-1 = unlimited, otherwise # of levels)
         */
-        els.readAttribute = function(attr, args) {
+        els.findAttribute = function (attr, args) {
             var match;
             args = Mortar.getArgs({
                 upDepth: undefined,
                 downDepth: undefined
             }, args);
-            els.some(function(el) {
+            els.some(function (el) {
                 if (el.hasAttribute(attr)) {
                     match = el;
                     return true;
@@ -945,7 +952,7 @@ window.Mortar = (function() {
         };
 
         /* scroll to make the first element visible */
-        els.scrollVisible = function(args) {
+        els.scrollVisible = function (args) {
             var first, rect, target;
             args = Mortar.getArgs({
                 margin: 0,
@@ -967,7 +974,7 @@ window.Mortar = (function() {
         };
 
         /* scroll to make the first element shown at the top of the viewport */
-        els.scrollToTop = function(args) {
+        els.scrollToTop = function (args) {
             var first, rect, target, ptr;
             args = Mortar.getArgs({
                 margin: 0,
@@ -1000,7 +1007,7 @@ window.Mortar = (function() {
     /*
     Generic XHR wrapper
     */
-    XHR = (function() {
+    XHR = (function () {
         function toQueryString(obj) {
             var name, pairs = [];
             for (name in obj) {
@@ -1013,11 +1020,16 @@ window.Mortar = (function() {
 
         function xhr (type, url, data, args) {
             var request = new XMLHttpRequest(),
-                promise = PromiseLite({this: this, task: request});
+                promise = PromiseLite({this: this, task: request}),
+                header;
 
             args = Mortar.getArgs({
                 'timeout': 30,
-                'async': true
+                'async': true,
+                'headers': {},
+                'error': undefined,
+                'then': undefined,
+                'always': undefined
             }, args);
             if (data) {
                 if (type.toUpperCase() === 'GET') {
@@ -1036,7 +1048,14 @@ window.Mortar = (function() {
             request.open(type, url, true);
             request.timeout = args.timeout * 1000;
             request.setRequestHeader('Content-type', xhr.contentType);
-            request.onreadystatechange = function() {
+            if (args.headers) {
+                for (header in args.headers) {
+                    if (args.headers.hasOwnProperty(header)) {
+                        request.setRequestHeader(header, args.headers[header]);
+                    }
+                }
+            }
+            request.onreadystatechange = function () {
                 var response, contentType;
                 if (request.readyState === 4) {
                     // if the XHR request didn't timeout, parse the response
@@ -1048,7 +1067,8 @@ window.Mortar = (function() {
                             response = request.responseText;
                         }
                     } else {
-                        response = 'Request failed or timed out after ' + request.timeout + 's';
+                        response = 'Request failed or timed out after ' +
+                            parseInt(request.timeout/1000, 10) + 's';
                     }
                     promise.complete(
                         request.status >= 200 && request.status < 300,
@@ -1057,35 +1077,44 @@ window.Mortar = (function() {
                 }
             };
             request.send(data);
+            if (args.error) {
+                promise.error(args.error);
+            }
+            if (args.then) {
+                promise.then(args.then);
+            }
+            if (args.always) {
+                promise.always(args.always);
+            }
             return promise;
         }
 
         xhr.contentType = 'application/json';
 
-        xhr.request = function(method, url, data, args) {
+        xhr.request = function (method, url, data, args) {
             return xhr(method.toUpperCase(), url, data, args);
         };
-        xhr.get = function(url, data, args) {
+        xhr.get = function (url, data, args) {
             return xhr('GET', url, data, args);
         };
-        xhr.post = function(url, data, args) {
+        xhr.post = function (url, data, args) {
             return xhr('POST', url, data, args);
         };
-        xhr.put = function(url, data, args) {
+        xhr.put = function (url, data, args) {
             return xhr('PUT', url, data, args);
         };
-        xhr['delete'] = function(url, data, args) {
+        xhr['delete'] = function (url, data, args) {
             return xhr('DELETE', url, data, args);
         };
-        xhr.batch = function(batch) {
+        xhr.batch = function (batch) {
             /* e.g.
             API.batch([
                 {
                     method: 'get',
                     apiArgs: [url, data, ...],
-                    then: function() {}, // see args below
-                    error: function() {},
-                    always: function() {}
+                    then: function () {}, // see args below
+                    error: function () {},
+                    always: function () {}
                 },
                 {...}
             ]).then|always|error(...);
@@ -1098,7 +1127,7 @@ window.Mortar = (function() {
             promise.then(batch.then);
             promise.error(batch.error);
             promise.always(batch.always);
-            batch.map(function(api, index) {
+            batch.map(function (api, index) {
                 results.push({
                     response: undefined,
                     request: undefined,
@@ -1109,7 +1138,7 @@ window.Mortar = (function() {
                     batch: batch
                 });
                 xhr[api.method].apply(this, api.apiArgs)
-                    .then(function(response, request) {
+                    .then(function (response, request) {
                         results[index].response = response;
                         results[index].request = request;
                         results[index].success = true;
@@ -1118,7 +1147,7 @@ window.Mortar = (function() {
                         }
                         promise.complete(true, [results[index]]);
                     })
-                    .error(function(response, request) {
+                    .error(function (response, request) {
                         results[index].response = response;
                         results[index].request = request;
                         results[index].success = false;
@@ -1127,7 +1156,7 @@ window.Mortar = (function() {
                         }
                         promise.complete(false, [results[index]]);
                     })
-                    .always(function(response, request) {
+                    .always(function (response, request) {
                         if (typeof(api.always) === 'function') {
                             api.always.call(promise.args.this, response, request, api, index, results);
                         }
@@ -1142,16 +1171,20 @@ window.Mortar = (function() {
     /*
     API wrapper
     */
-    API = function(apiUrl, args) {
+    API = function (apiUrl, args) {
         var defaultArgs = Mortar.getArgs({
             'timeout': undefined,
-            'async': undefined
+            'async': undefined,
+            'headers': {},
+            'error': undefined,
+            'then': undefined,
+            'always': undefined
         }, args);
         if (apiUrl.substr(-1) !== '/') {
             apiUrl = apiUrl + '/';
         }
         return {
-            request: function(method, url, data, args) {
+            request: function (method, url, data, args) {
                 return XHR.bind(this)(
                     method.toUpperCase(),
                     apiUrl + url,
@@ -1159,7 +1192,7 @@ window.Mortar = (function() {
                     Mortar.getArgs(defaultArgs, args, true)
                 );
             },
-            get: function(url, data, args) {
+            get: function (url, data, args) {
                 return XHR.bind(this)(
                     'GET',
                     apiUrl + url,
@@ -1167,7 +1200,7 @@ window.Mortar = (function() {
                     Mortar.getArgs(defaultArgs, args, true)
                 );
             },
-            post: function(url, data, args) {
+            post: function (url, data, args) {
                 return XHR.bind(this)(
                     'POST',
                     apiUrl + url,
@@ -1175,7 +1208,7 @@ window.Mortar = (function() {
                     Mortar.getArgs(defaultArgs, args, true)
                 );
             },
-            put: function(url, data, args) {
+            put: function (url, data, args) {
                 return XHR.bind(this)(
                     'PUT',
                     apiUrl + url,
@@ -1183,7 +1216,7 @@ window.Mortar = (function() {
                     Mortar.getArgs(defaultArgs, args, true)
                 );
             },
-           'delete': function(url, data, args) {
+           'delete': function (url, data, args) {
                 return XHR.bind(this)(
                     'DELETE',
                     apiUrl + url,
@@ -1191,9 +1224,9 @@ window.Mortar = (function() {
                     Mortar.getArgs(defaultArgs, args, true)
                 );
             },
-            batch: function(batch) {
+            batch: function (batch) {
                 // inject the API URL for each item in the batch
-                batch.map(function(item) {
+                batch.map(function (item) {
                     if (!item.apiArgs.length) {
                         throw new Error("Missing API arguments for batch API call");
                     }
@@ -1220,7 +1253,7 @@ window.Mortar = (function() {
     - "batch" oriented promises to track multiple tasks via a single promise
     - rewindable to allow promises to be re-completed (e.g. more new tasks to track, don't want to loose/repeat history)
     */
-    PromiseLite = function(args) {
+    PromiseLite = function (args) {
         var promise = {
             args: Mortar.getArgs({
                 this: this,
@@ -1234,8 +1267,8 @@ window.Mortar = (function() {
             tasksResults: [], // each item should be an array
             retval: undefined, // succeeded? true/false
             resultVals: undefined, // final callback results based on promise.tasksResults
-            callbacks: [], // each entry is the callback type (e.g. 'then', 'error', 'always) and then the function; e.g.: [["then", function() {}], ["always", function() {}]]
-            _doCallback: function(callback) {
+            callbacks: [], // each entry is the callback type (e.g. 'then', 'error', 'always) and then the function; e.g.: [["then", function () {}], ["always", function () {}]]
+            _doCallback: function (callback) {
                 var result;
                 if (typeof(callback) === 'function') {
                     result = callback.apply(
@@ -1251,7 +1284,7 @@ window.Mortar = (function() {
                     }
                 }
             },
-            _queueCallback: function(queue, callback) {
+            _queueCallback: function (queue, callback) {
                 // invoke (if appropriate) if we're already done; else queue away
                 if (promise.finished) {
                     if (queue === 'then') {
@@ -1270,46 +1303,46 @@ window.Mortar = (function() {
                 }
             },
             // allow user to attach multiple callback handlers
-            then: function(callback) {
+            then: function (callback) {
                 promise._queueCallback('then', callback);
                 return promise;
             },
-            error: function(callback) {
+            error: function (callback) {
                 promise._queueCallback('error', callback);
                 return promise;
             },
-            always: function(callback) {
+            always: function (callback) {
                 promise._queueCallback('always', callback);
                 return promise;
             },
             // call another function to return promise that sets the return value of this promise
-            chain: function(chainFunc) {
+            chain: function (chainFunc) {
                 var chainedPromise;
                 if (typeof(chainFunc) !== 'function') {
                     throw new Error("Invalid argument to promise.wrap(); function returning a promise expected.");
                 }
                 chainedPromise = PromiseLite({this: promise.args.this});
-                promise.then(function() {
+                promise.then(function () {
                     chainFunc.apply(promise.args.this, arguments)
-                        .then(function() {
+                        .then(function () {
                             chainedPromise.complete(true, arguments);
                         })
-                        .error(function() {
+                        .error(function () {
                             chainedPromise.complete(false, arguments);
                         });
                 });
                 return chainedPromise;
             },
             // complete a related promise once this one is completed
-            wrap: function(otherPromise) {
-                return promise.then(function() {
+            wrap: function (otherPromise) {
+                return promise.then(function () {
                     otherPromise.complete(true, arguments);
-                }).error(function() {
+                }).error(function () {
                     otherPromise.complete(false, arguments);
                 });
             },
             // to be called when the task finishes; assume true by default
-            complete: function(success, resultVals) {
+            complete: function (success, resultVals) {
                 if (promise.finished) {
                     throw new Error("PromiseLite attempted to be completed a second time.");
                 }
@@ -1327,7 +1360,7 @@ window.Mortar = (function() {
                         promise.tasksResults[0] :
                         promise.tasksResults;
                     // its easiest to run the callbacks in order defined so 'then' and 'always' can be in mixed order
-                    promise.callbacks.forEach(function(item) {
+                    promise.callbacks.forEach(function (item) {
                         var queue = item[0],
                             callback = item[1];
                         if (queue === 'then' && promise.retval) {
@@ -1344,7 +1377,7 @@ window.Mortar = (function() {
                 return promise;
             },
             // reverse the state of an unfinished promise or forcing a promise to be unfinished; resetting a finished promise clears the callback queue
-            rewind: function(count, force) {
+            rewind: function (count, force) {
                 if (!promise.finished && !force) {
                     throw new Error("PromiseLite has not yet been completed; unable to rewind it without force.");
                 }
@@ -1364,19 +1397,20 @@ window.Mortar = (function() {
         return promise;
     };
 
-    Form = function(args) {
+    Form = function (args) {
         var form;
 
         args = Mortar.getArgs({
             el: undefined, // form element or form container
+            api: XHR, // API object to use; defaults to generic XHR obj
             eventEl: undefined, // who do we play events on? def: el
             validators: undefined, // list of validators to use
             submitApi: undefined,
             submitMethod: undefined,
             successMsg: undefined,
             successEvent: undefined,
-            onSubmit: function() {}, // called on successful submission
-            onValidate: function() {} // called on successful validation; allows args to be reformatted
+            onSubmit: function () {}, // called on successful submission
+            onValidate: function () {} // called on successful validation; allows args to be reformatted
         }, args);
         if (!args.el) {
             throw new Error("An element is required.");
@@ -1385,50 +1419,51 @@ window.Mortar = (function() {
         // form init and props
         form = {
             args: args,
-            el: args.el.tagName === 'FORM' 
+            el: args.el.tagName === 'FORM'
                 ? args.el
                 : Mortar.$1('form', args.el),
             eventEl: args.eventEl,
-            $: function(sel) {
+            $: function (sel) {
                 return Mortar.$(sel, form.el);
             },
-            $1: function(sel) {
+            $1: function (sel) {
                 return Mortar.$1(sel, form.el);
             },
             // having these exteral makes it easier to refer to things elsewhere
             _sel: {
-                item: '.data-mtr-form-item',
-                value: '.data-mtr-form-value',
-                footer: '.data-mtr-form-footer',
-                error: '.data-mtr-form-error',
-                label: '.data-mtr-form-label',
-                generalError: '.data-mtr-form-general-error',
-                generalSuccess: '.data-mtr-form-general-success',
+                item: '.mtr-form-item',
+                value: '.mtr-form-value',
+                footer: '.mtr-form-footer',
+                error: '.mtr-form-error',
+                label: '.mtr-form-label',
+                generalError: '.mtr-form-general-error',
+                generalSuccess: '.mtr-form-general-success',
             }
         };
         if (!form.el) {
             throw new Error("No form element found.");
         }
         form.eventEl = form.eventEl || form.el;
-        
+
         // attempt to initialize missing args from form data
-        form.args.submitApi = args.submitApi 
+        form.args.submitApi = args.submitApi
+            || form.el.getAttribute('data-mtr-api')
             || form.el.action;
-        form.args.submitMethod = args.submitMethod 
+        form.args.submitMethod = args.submitMethod
             || form.el.method
             || 'post';
-        form.args.successEvent = args.successEvent 
+        form.args.successEvent = args.successEvent
             || form.el.getAttribute('data-mtr-success-event')
             || 'data-mtr-submitted';
 
         // return form field elements
-        form.fields = function(args) {
+        form.fields = function (args) {
             var wanted = [],
                 fields = Mortar.$('input, textarea, select', form.el);
             args = Mortar.getArgs({
                 hidden: true
             }, args);
-            fields.forEach(function(field) {
+            fields.forEach(function (field) {
                 var type = field.getAttribute('type');
                 if (!args.hidden && type && type.toLowerCase() === 'hidden') {
                     return;
@@ -1438,10 +1473,10 @@ window.Mortar = (function() {
             return wanted;
         };
 
-        form.reset = function() {
+        form.reset = function () {
             form.showError();
             form.showSuccess();
-            form.fields().forEach(function(field) {
+            form.fields().forEach(function (field) {
                 var selObj,
                     $el = Els(field),
                     fieldType = field.getAttribute('type');
@@ -1462,9 +1497,9 @@ window.Mortar = (function() {
         };
 
         // returns form data based on the form mode (e.g. ignore disabled inputs; ignore missing optional data)
-        form.serialize = function(args) {
+        form.serialize = function (args) {
             var data = {};
-            form.fields(args).forEach(function(field) {
+            form.fields(args).forEach(function (field) {
                 var selObj,
                     $el = Els(field),
                     value = String(field.value).replace(/^\s+|\s+$/gm, ''),
@@ -1500,7 +1535,7 @@ window.Mortar = (function() {
         };
 
         // validate the required form fields based on the mode specified; optionally will show errors
-        form.validate = function(args) {
+        form.validate = function (args) {
             var $fields = Els(form.fields()),
                 data = form.serialize(),
                 fieldMap = {},
@@ -1522,12 +1557,12 @@ window.Mortar = (function() {
             } else {
                 names = args.names;
             }
-            $fields.each(function(field) {
+            $fields.each(function (field) {
                 fieldMap[field.getAttribute('name')] = field;
             });
             // for each item listed to validate, fetch any errors
             if (form.args.validators) {
-                names.forEach(function(name) {
+                names.forEach(function (name) {
                     var field, error, validator, $labelEl, label, $field;
                     field = fieldMap[name];
                     $field = Els(field);
@@ -1560,11 +1595,11 @@ window.Mortar = (function() {
                     // clear existing general messages first before adding new ones
                     form.showError();
                     form.showSuccess();
-                    Els(form.$(form._sel.error)).each(function(el) {
+                    Els(form.$(form._sel.error)).each(function (el) {
                         el.parentElement.removeChild(el);
                     });
                     // and now the new (or repeated) ones
-                    Mortar.each(errors, function(error, name) {
+                    Mortar.each(errors, function (error, name) {
                         // show the error after the form element
                         var parentEl = Els(fieldMap[name]).parents(form._sel.item),
                             errorEl = form._errorEl(error);
@@ -1594,7 +1629,7 @@ window.Mortar = (function() {
         };
 
         // show a generic error (e.g. submission errors not tied to a particular input element)
-        form.showError = function(error, args) {
+        form.showError = function (error, args) {
             var errorEl;
             args = Mortar.getArgs({
                 scroll: true
@@ -1620,7 +1655,7 @@ window.Mortar = (function() {
         };
 
         // show a generic error (e.g. submission errors not tied to a particular input element)
-        form.showSuccess = function(msg, args) {
+        form.showSuccess = function (msg, args) {
             var successEl;
             args = Mortar.getArgs({
                 scroll: false
@@ -1646,7 +1681,7 @@ window.Mortar = (function() {
         };
 
         // generate an inline error element
-        form._errorEl = function(msg) {
+        form._errorEl = function (msg) {
             var el = document.createElement('div');
             el.className = form._sel.error.substr(1);
             el.innerHTML = msg;
@@ -1654,7 +1689,7 @@ window.Mortar = (function() {
         };
 
         // validate and submit the form
-        form.submit = function() {
+        form.submit = function () {
             var result,
                 disabled = [];
             result = form.validate({showErrors: true});
@@ -1667,25 +1702,25 @@ window.Mortar = (function() {
             Els(
                 form.$('button'),
                 form.fields()
-            ).each(function(el) {
+            ).each(function (el) {
                 // keep track of who we disabled so we can enable them later (w/o enabling previously disabled buttons)
                 if (!el.disabled) {
                     el.disabled = true;
                     disabled.push(el);
                 }
             });
-            return XHR.request(
+            return form.args.api.request(
                     form.args.submitMethod,
                     form.args.submitApi,
                     result.data
                 )
-                .always(function() {
+                .always(function () {
                     // restore any input/buttons we disabled
-                    disabled.forEach(function(el) {
+                    disabled.forEach(function (el) {
                         el.disabled = false;
                     });
                 })
-                .then(function(resp) {
+                .then(function (resp) {
                     form.reset();
                     form.args.onSubmit(resp, resp, form);
                     form.showSuccess(form.args.successMsg);
@@ -1694,7 +1729,7 @@ window.Mortar = (function() {
                         data: resp
                     });
                 })
-                .error(function(error) {
+                .error(function (error) {
                     form.showError(error);
                 });
         };
@@ -1702,7 +1737,7 @@ window.Mortar = (function() {
         return form;
     };
 
-    UI = function(args) {
+    UI = function (args) {
         var ui = {};
 
         ui.args = Mortar.getArgs({
@@ -1714,17 +1749,17 @@ window.Mortar = (function() {
         ui.api = ui.args.apiUrl ? API(ui.args.apiUrl) : null;
 
         // UI magic!
-        ui.initMagicEls = function(el) {
+        ui.initMagicEls = function (el) {
             // init each magical UI thing we've got!
-            Mortar.$('[' + UI.Toggler._sel.groupAttr + ']', el)
+            Mortar.$('[' + UI.Toggler._sel.selAttr + ']', el)
                 .forEach(UI.Toggler);
         };
 
         // UI node caching
-        ui.$els = (function() {
+        ui.$els = (function () {
             var cache = {};
-            
-            return function(nameOrEl, query, args) {
+
+            return function (nameOrEl, query, args) {
                 var $els;
                 args = Mortar.getArgs({
                     clear: false,
@@ -1766,27 +1801,28 @@ window.Mortar = (function() {
         return ui;
     };
 
-    UI.Toggler = function(toggler, args) {
+    UI.Toggler = function (toggler, args) {
         args = Mortar.getArgs({
             toggleFirst: false, // TODO
             eventAttr: UI.Toggler._sel.eventAttr,
             eventValAttr: UI.Toggler._sel.eventValAttr,
-            groupAttr: UI.Toggler._sel.groupAttr,
+            selAttr: UI.Toggler._sel.selAttr,
             groupActiveCls: UI.Toggler._sel.groupActiveCls,
             targetAttr: UI.Toggler._sel.targetAttr
         }, args);
-        var toggleCls = toggler.getAttribute(args.groupAttr),
-            $toggleTgt = Els(toggler).nearest(
-                toggler.getAttribute(args.targetAttr)
-            ),
+        var toggleSel = toggler.getAttribute(args.selAttr),
+            targetAttr = toggler.getAttribute(args.targetAttr),
+            $toggleTgt = Boolean(targetAttr)
+                ? Els(toggler).nearest(targetAttr)
+                : Els(toggler),
             toggleEv = toggler.getAttribute(args.eventAttr),
-            $toggles = Els(Mortar.$('.' + toggleCls, toggler));
-        $toggles.on('click', function(ev) {
+            $toggles = Els(Mortar.$(toggleSel, toggler));
+        $toggles.on('click', function (ev) {
             // move 'active' to ourself, raise event
             var el = ev.target;
             Els(toggler)
                 .children('.' + args.groupActiveCls, {depth: -1})
-                .forEach(function(el) {
+                .forEach(function (el) {
                     Els(el).toggleClass(args.groupActiveCls);
                 });
             Els(el).toggleClass(args.groupActiveCls, true);
@@ -1800,13 +1836,14 @@ window.Mortar = (function() {
     UI.Toggler._sel = {
         // event name on the target on changes
         eventAttr: 'data-mtr-toggle-event',
+        // when activating, this attribute gives a selector for where to fire an event; we fire on ourself otherwise
+        targetAttr: 'data-mtr-toggle-target',
         // event data.value fired on the target on changes
         eventValAttr: 'data-mtr-toggle-val',
-        // UI elements we look for during ui.magic()
-        groupAttr: 'data-mtr-toggle-group',
+        // UI elements we track clicks on for events
+        selAttr: 'data-mtr-toggle-sel',
         // on activation, we toggle this class
-        groupActiveCls: 'data-mtr-active',
-        targetAttr: 'data-mtr-toggle-target'
+        groupActiveCls: 'mtr-active',
     };
 
     /*
@@ -1820,7 +1857,9 @@ window.Mortar = (function() {
      *
      * TODO: recursively process states after "onSet"?
      */
-    UI.State = function(args) {
+    UI.State = function (args) {
+        var state = {};
+
         args = Mortar.getArgs({
             // parent element to look for state nodes on
             el: document.body,
@@ -1831,159 +1870,189 @@ window.Mortar = (function() {
             // automatically move nested info to top-level states
             unfold: {},
             // called anytime the appropriate state is ready for a node
-            onSet: function(el, data, statesSet) {},
+            onSet: function (el, data, statesSet) {},
             // called anytime we no longer have the right state for a node
-            onClear: function(el, data, statesCleared) {}
+            onClear: function (el, data, statesCleared) {}
         }, args);
-        return (function() {
-            // our data cache
-            var data = {};
 
-            function refreshState(names, data) {
-                var $stateEls = Els(args.el).children('[' + args.attr + ']', {
-                    depth: args.scanDepth
-                });
-                // decide what to show/hide based on the data we have
-                $stateEls.each(function(el) {
-                    var states = el.getAttribute(args.attr).split(','),
-                        showEl = true,
-                        haveName = false;
-                    states.forEach(function(state) {
-                        var wantData = state.substr(0, 1) != '!',
-                            dataName = (wantData
-                                ? state
-                                : state.substr(1)
-                            ),
-                            haveData = dataName in data;
-                        if (names.indexOf(dataName) >= 0) {
-                            haveName = true;
-                        }
-                        if (wantData && !haveData) {
-                            showEl = false;
-                        } else if (!wantData && haveData) {
-                            showEl = false;
-                        }
-                    });
-                    if (showEl) {
-                        // reparse templates for anything changing
-                        if (haveName) {
-                            args.onSet(el, data, names);
-                        }
-                    } else {
-                        args.onClear(el, data, names);
+        // where all our data gets stored
+        state._data = {};
+        state._dataBackup = {};
+
+        /*
+        Trigger events/callbacks on state change
+        */
+        state.refresh = function (names) {
+            var $stateEls = Els(args.el).children('[' + args.attr + ']', {
+                depth: args.scanDepth
+            });
+            // decide what to show/hide based on the data we have
+            $stateEls.each(function (el) {
+                var states = el.getAttribute(args.attr).split(','),
+                    showEl = true,
+                    haveName = false;
+                states.forEach(function (stateName) {
+                    var wantData = stateName.substr(0, 1) != '!',
+                        dataName = (wantData
+                            ? stateName
+                            : stateName.substr(1)
+                        ),
+                        haveData = state._data.hasOwnProperty(dataName);
+                    if (names.indexOf(dataName) >= 0) {
+                        haveName = true;
+                    }
+                    if (wantData && !haveData) {
+                        showEl = false;
+                    } else if (!wantData && haveData) {
+                        showEl = false;
                     }
                 });
-            };
+                if (showEl) {
+                    // reparse templates for anything changing
+                    if (haveName) {
+                        args.onSet(el, state._data, names);
+                    }
+                } else {
+                    args.onClear(el, state._data, names);
+                }
+            });
+        };
 
-            function unfold(name, value) {
-                var dottedKey,
-                    keyParts,
-                    hasData,
-                    valuePtr,
-                    valuePrevPtr,
-                    flattened = {};
-                // value isn't an object? def nothing to snag then
-                if (typeof(value) != 'object' || Array.isArray(value)) {
-                    return flattened;
-                }
-                // sometimes we get data that contains nested states we want to
-                // extract we'll move that data out and return it
-                for (dottedKey in args.unfold) {
-                    valuePtr = value;
-                    valuePrevPtr = null;
-                    hasData = null;
-                    keyParts = dottedKey.split('.');
-                    // first part doesn't match? no way jose, move on
-                    if (keyParts[0] != name) {
-                        continue;
-                    }
-                    keyParts.slice(1).forEach(function(key) {
-                        if (typeof(valuePtr) != 'object' || Array.isArray(valuePtr)) {
-                            hasData = false;
-                        }
-                        if (hasData !== false && key in valuePtr) {
-                            valuePrevPtr = valuePtr;
-                            valuePtr = valuePtr[key];
-                            hasData = true;
-                        } else {
-                            hasData = false;
-                        }
-                    });
-                    if (hasData) {
-                        flattened[args.unfold[dottedKey]] = valuePtr;
-                        delete(valuePrevPtr[keyParts[keyParts.length - 1]]);
-                    }
-                }
+        /*
+        Parse out nested info as top-level items (e.g. for when data of
+        multiple types is combined together.
+        */
+        state.unfold = function (name, value) {
+            var dottedKey,
+                keyParts,
+                hasData,
+                valuePtr,
+                valuePrevPtr,
+                flattened = {};
+            // value isn't an object? def nothing to snag then
+            if (typeof(value) != 'object' || Array.isArray(value)) {
                 return flattened;
-            };
-
-            return {
-                _data: data,
-                set: function(name, val, skipRefresh) {
-                    var flatKey,
-                        flattened = unfold(name, val),
-                        names = [name];
-                    data[name] = val;
-                    for (flatKey in flattened) {
-                        data[flatKey] = flattened[flatKey];
-                        names.push(flatKey);
+            }
+            // sometimes we get data that contains nested states we want to
+            // extract we'll move that data out and return it
+            for (dottedKey in args.unfold) {
+                valuePtr = value;
+                valuePrevPtr = null;
+                hasData = null;
+                keyParts = dottedKey.split('.');
+                // first part doesn't match? no way jose, move on
+                if (keyParts[0] != name) {
+                    continue;
+                }
+                keyParts.slice(1).forEach(function (key) {
+                    if (typeof(valuePtr) != 'object' || Array.isArray(valuePtr)) {
+                        hasData = false;
                     }
-                    if (!skipRefresh) {
-                        refreshState(names, data);
-                    }
-                },
-                setMulti: function(dict, skipRefresh) {
-                    var name,
-                        flatKey,
-                        flattened,
-                        names = [];
-                    for (name in dict) {
-                        if (dict.hasOwnProperty(name)) {
-                            flattened = unfold(name, dict[name]);
-                            for (flatKey in flattened) {
-                                names.push(flatKey);
-                                data[flatKey] = flattened[flatKey];
-                            }
-                            names.push(name);
-                            data[name] = dict[name];
-                        }
-                    }
-                    if (!skipRefresh) {
-                        refreshState(names, data);
-                    }
-                },
-                clear: function(name, skipRefresh) {
-                    var val;
-                    if (data.hasOwnProperty(name)) {
-                        val = data[name];
-                        delete(data[name]);
-                        if (!skipRefresh) {
-                            refreshState([name], data);
-                        }
-                    }
-                    return val;
-                },
-                clearMulti: function(names, skipRefresh) {
-                    var vals = {};
-                    names.forEach(function(name) {
-                        if (data.hasOwnProperty(name)) {
-                            vals[name] = data[name];
-                            delete(data[name]);
-                        }
-                    });
-                    if (!skipRefresh) {
-                        refreshState([names], data);
-                    }
-                },
-                get: function(name) {
-                    if (name) {
-                        return data[name];
+                    if (hasData !== false && key in valuePtr) {
+                        valuePrevPtr = valuePtr;
+                        valuePtr = valuePtr[key];
+                        hasData = true;
                     } else {
-                        return data;
+                        hasData = false;
                     }
-                },
-            };
-        })();
+                });
+                if (hasData) {
+                    flattened[args.unfold[dottedKey]] = valuePtr;
+                    delete(valuePrevPtr[keyParts[keyParts.length - 1]]);
+                }
+            }
+            return flattened;
+        };
+
+
+        state.set = function (name, val, skipRefresh) {
+            var flatKey,
+                flattened = state.unfold(name, val),
+                names = [name];
+            state._data[name] = val;
+            for (flatKey in flattened) {
+                state._data[flatKey] = flattened[flatKey];
+                names.push(flatKey);
+            }
+            if (!skipRefresh) {
+                state.refresh(names, state._data);
+            }
+        };
+
+        state.setMulti = function (dict, skipRefresh) {
+            var name,
+                flatKey,
+                flattened,
+                names = [];
+            for (name in dict) {
+                if (dict.hasOwnProperty(name)) {
+                    flattened = state.unfold(name, dict[name]);
+                    for (flatKey in flattened) {
+                        names.push(flatKey);
+                        state._data[flatKey] = flattened[flatKey];
+                    }
+                    names.push(name);
+                    state._data[name] = dict[name];
+                }
+            }
+            if (!skipRefresh) {
+                state.refresh(names, state._data);
+            }
+        };
+
+        state.clear = function (name, skipRefresh) {
+            var val;
+            if (state._data.hasOwnProperty(name)) {
+                val = state._data[name];
+                delete(state._data[name]);
+                if (!skipRefresh) {
+                    state.refresh([name], state._data);
+                }
+            }
+            return val;
+        };
+
+        state.clearMulti = function (names, skipRefresh) {
+            var vals = {};
+            names.forEach(function (name) {
+                if (state._data.hasOwnProperty(name)) {
+                    vals[name] = state._data[name];
+                    delete(state._data[name]);
+                }
+            });
+            if (!skipRefresh) {
+                state.refresh([names], state._data);
+            }
+        };
+
+        state.backup = function (name) {
+            if (state._data.hasOwnProperty(name)) {
+                state._dataBackup[name] = state._data[name];
+            }
+        };
+
+        state.clearBackup = function (name) {
+            if (state._dataBackup.hasOwnProperty(name)) {
+                delete(state._dataBackup[name]);
+            }
+        };
+
+        state.restore = function (name, skipRefresh) {
+            if (state._dataBackup.hasOwnProperty(name)) {
+                state.set(name, state._dataBackup[name], skipRefresh);
+                delete(state._dataBackup[name]);
+            }
+        };
+
+        state.get = function (name) {
+            if (name) {
+                return state._data[name];
+            } else {
+                return state._data;
+            }
+        };
+
+        return state;
     };
 
 
@@ -1995,5 +2064,3 @@ window.Mortar = (function() {
     Mortar.XHR = XHR
     return Mortar;
 })();
-
-
