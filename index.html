@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Example App</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="Color.js"></script>
+        <script src="Mortar.js"></script>
+        <link rel="stylesheet" href="basics.css" type="text/css">
+        <style>
+            body {
+                font-family: sans-sarif;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div id="main-view" class="flex-col">
+
+            <div id="header" class="flex-fixed">
+                <div class="thing-a" style="float: right;">
+                    <button>Thing A</button>
+                </div>
+                <div class="thing-b">
+                    <button>Thing B</button>
+                </div>
+                <div class="thing-c">
+                    <button>Thing C</button>
+                </div>
+            </div>
+
+            <div class="flex-content-wrapper">
+
+                <div id="main-contentn" class="flex-content">
+                    <div class="column-data data-a">
+                        <div class="flex-col">
+                            <div class="title">Data A</div>
+                            <div class="data">foo bar</div>
+                        </div>
+                    </div>
+                    <div class="column-data">
+                        <div class="flex-col data-b">
+                            <div class="title">Data B</div>
+                            <div class="data">foo bar</div>
+                        </div>
+                    </div>
+                    <div class="column-data">
+                        <div class="flex-col data-c">
+                            <div class="title">Data C</div>
+                            <div class="data">foo bar</div>
+                        </div>
+                    </div>
+                    <div class="column-data">
+                        <div class="flex-col data-d">
+                            <div class="title">Data D</div>
+                            <div class="data">foo bar</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="footer" class="flex-fixed">
+                <div class="data">
+                    <div class="grid-xs-3">
+                        <label>Stat 1</label>
+                        <span data-prop="stat1">42</span>
+                    </div>
+                    <div class="grid-xs-3">
+                        <label>Stat 2</label>
+                        <span data-prop="stat2">alpha-romeo</span>
+                    </div>
+                    <div class="grid-xs-3">
+                        <label>Stat 3</label>
+                        <span data-prop="stat3">to infinity (and beyond)?</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <script src="example-app.js"></script>
+    </body>
+</html>

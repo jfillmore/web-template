@@ -13,7 +13,7 @@ Grids: specify the number of columns for the row directly (e.g. 2, 3, 7, 12, 24,
   - md: 720 - 1399
   - lg: 1400 - 1899
   - xl: 1900 +
-  
+
 ## CSS Class format:
 
   - grid-$size-$num = $num is how many columns (e.g. 2, 5)
